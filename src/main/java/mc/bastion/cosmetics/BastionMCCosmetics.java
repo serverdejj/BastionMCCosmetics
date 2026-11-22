@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.entity.EntityUnleashEvent;
+import org.bukkit.event.entity.PlayerUnleashEntityEvent;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -44,6 +46,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
     private long ticks = 0;
     private NamespacedKey cosmeticHatKey;
     private static final String[] CATEGORIES = {"auras", "balloons", "hats"};
+    private final Set<UUID> teleportingBalloons = new HashSet<>();
     private static final Pattern RGB = Pattern.compile("&#([0-9a-fA-F]{6})");
     private static final class View {
         final Inventory inventory;
@@ -82,6 +85,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         }
         balloons.values().forEach(this::safeRemove);
         balloons.clear();
+        teleportingBalloons.clear();
         saveUsers();
     }
 
@@ -369,12 +373,57 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         if (clearRecord)setEquipped(p,"hats","");
     }
     private void removeBalloon(UUID uuid) {
-        Balloon balloon=balloons.remove(uuid);
-        if (balloon!=null)safeRemove(balloon);
+        Balloon balloon=balloons.get(uuid);
+        if (balloon!=null) {
+            // Keep the anchor registered while it is removed, so its unleash
+            // event is recognized and cannot create a dropped lead.
+            safeRemove(balloon);
+            balloons.remove(uuid);
+        }
     }
     private void safeRemove(Balloon balloon) {
         try {if (balloon.head.isValid())balloon.head.remove();}catch(Exception ignored){}
+        // EntityUnleashEvent below prevents a cosmetic lead from dropping on removal.
         try {if (balloon.leashAnchor.isValid())balloon.leashAnchor.remove();}catch(Exception ignored){}
+    }
+
+    private boolean isCosmeticAnchor(Entity entity) {
+        for (Balloon balloon : balloons.values()) {
+            if (balloon.leashAnchor.getUniqueId().equals(entity.getUniqueId())) return true;
+        }
+        return false;
+    }
+
+    // A cosmetic lead is not an obtainable item. This also covers leash breakage
+    // triggered by large movements, removal, or another plugin's teleport.
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void preventCosmeticLeadDrop(EntityUnleashEvent event) {
+        if (isCosmeticAnchor(event.getEntity())) event.setDropLeash(false);
+    }
+
+    // Players must not be able to take the invisible balloon anchor's leash.
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void preventCosmeticUnleash(PlayerUnleashEntityEvent event) {
+        if (isCosmeticAnchor(event.getEntity())) event.setCancelled(true);
+    }
+
+    // Remove the old tether BEFORE the player changes position, then recreate it
+    // at the destination. Keeping an old tether across large teleports makes
+    // Minecraft snap the lead and may strand the balloon in the old chunk.
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBalloonOwnerTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        if (equipped(player, "balloons").isBlank()) return;
+        teleportingBalloons.add(uuid);
+        removeBalloon(uuid);
+        Bukkit.getScheduler().runTask(this, () -> {
+            teleportingBalloons.remove(uuid);
+            if (player.isOnline() && !player.isDead() && allowed(player)
+                    && !equipped(player, "balloons").isBlank()) {
+                spawnBalloon(player);
+            }
+        });
     }
     private ItemStack applyHeadTexture(ItemStack skull, String base, Player player) {
         if (skull.getType()!=Material.PLAYER_HEAD) return skull;
@@ -485,14 +534,17 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
                     }
                 } catch(Exception ignored) {}
             }
-            if(!equipped(p,"balloons").isEmpty()) {
+            if(!equipped(p,"balloons").isEmpty() && !teleportingBalloons.contains(p.getUniqueId())) {
                 Balloon balloon=balloons.get(p.getUniqueId());
                 if(balloon==null || !balloon.head.isValid() || !balloon.leashAnchor.isValid() || !balloon.head.getWorld().equals(p.getWorld()))spawnBalloon(p);
                 else if(ticks%balloonPeriod<3) {
                     Location destination=balloonLocation(p);
                     balloon.leashAnchor.teleport(destination);
                     balloon.head.teleport(destination.clone().add(0,.70,0));
-                    if (!balloon.leashAnchor.isLeashed()) balloon.leashAnchor.setLeashHolder(p);
+                    if (!balloon.leashAnchor.isLeashed() || !p.equals(balloon.leashAnchor.getLeashHolder())) {
+                        try {balloon.leashAnchor.setLeashHolder(p);}
+                        catch (IllegalStateException ex) {spawnBalloon(p);}
+                    }
                 }
             }
         }
@@ -506,7 +558,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
     }
     private boolean canReapplyHat(Player p) {ItemStack helmet=p.getInventory().getHelmet();return helmet==null || helmet.getType().isAir();}
     @EventHandler public void join(PlayerJoinEvent e) {Bukkit.getScheduler().runTaskLater(this,()->resumeVisuals(e.getPlayer()),20);}
-    @EventHandler public void quit(PlayerQuitEvent e) {views.remove(e.getPlayer().getUniqueId());removeBalloon(e.getPlayer().getUniqueId());restoreHat(e.getPlayer(),false);saveUsers();}
+    @EventHandler public void quit(PlayerQuitEvent e) {views.remove(e.getPlayer().getUniqueId());teleportingBalloons.remove(e.getPlayer().getUniqueId());removeBalloon(e.getPlayer().getUniqueId());restoreHat(e.getPlayer(),false);saveUsers();}
     @EventHandler public void world(PlayerChangedWorldEvent e) {
         Player p=e.getPlayer();removeBalloon(p.getUniqueId());
         if(!allowed(p))restoreHat(p,false);

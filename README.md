@@ -1,4 +1,16 @@
-# BastionMCCosmetics 1.3.0
+# BastionMCCosmetics 1.3.1
+
+## Novedades 1.3.1 — globos y teletransporte
+
+- Antes de teletransportar al jugador, elimina el globo anterior y reconstruye el globo y la cuerda en el destino al siguiente tick.
+- Previene el drop del objeto `LEAD` mediante `EntityUnleashEvent#setDropLeash(false)` para las entidades ancla del globo.
+- Bloquea que un jugador se lleve manualmente la cuerda de un globo cosmético.
+- Si se suelta la cuerda durante el seguimiento normal, la vuelve a conectar automáticamente.
+- Incluye teletransportes de AjParkourBastion, `/spawn` y cualquier otro plugin que produzca `PlayerTeleportEvent`.
+- No modifica el funcionamiento de auras, sombreros, precios, menús, gemas ni la estructura de `players.yml`.
+- Reemplaza el JAR anterior después de compilar en GitHub Actions. **Conserva `players.yml` y tu `config.yml` actual**.
+
+## Funciones existentes
 
 - Paginación automática para Auras, Globos y Sombreros (28 por página), con siguiente/anterior y regreso al menú principal.
 - Entradas actuales: 16 auras, 16 globos y 30 sombreros. Cada una cuesta 20 gemas.
