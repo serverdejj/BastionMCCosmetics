@@ -1,6 +1,7 @@
 name: BastionMCCosmetics
-version: 1.3.2
+version: 1.3.3
 main: mc.bastion.cosmetics.BastionMCCosmetics
+softdepend: [PlaceholderAPI]
 api-version: '1.21'
 author: BASTION MC
 description: Cosmeticos con gemas para el lobby BASTION MC

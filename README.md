@@ -25,3 +25,17 @@
 ## v1.3.2 - corrección de compilación
 - Import correcto de `org.bukkit.event.player.PlayerUnleashEntityEvent` para Paper/Purpur 1.21.11.
 - Sin cambios en los cosméticos ni en los archivos de datos de los jugadores.
+
+## v1.3.3 — gemas en el scoreboard de TAB
+
+Instala PlaceholderAPI junto con TAB y BastionMCCosmetics. El plugin registra automáticamente el placeholder `%bastioncosmetics_gemas%` al iniciar. También acepta `%bastioncosmetics_gems%`.
+
+En `plugins/TAB/config.yml`, dentro de las `lines:` del scoreboard agrega:
+
+```yaml
+- " &b💎 &fGemas: &b%bastioncosmetics_gemas%"
+```
+
+Ejecuta `/tab reload` después de editar el TAB. No cambies `settings.gems-source` ni borres `players.yml`: el placeholder lee el mismo saldo que `/gemas`.
+
+La expansión requiere PlaceholderAPI instalado, pero el resto del plugin puede cargar sin él. Fuente preparada para compilar con Java 21 y Purpur/Paper 1.21.11; no probado dentro del servidor.

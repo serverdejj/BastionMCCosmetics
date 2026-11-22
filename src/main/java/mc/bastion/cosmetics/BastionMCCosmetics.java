@@ -72,6 +72,10 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         Objects.requireNonNull(getCommand("gemas")).setExecutor(this);
         Objects.requireNonNull(getCommand("gemas")).setTabCompleter(this);
         getServer().getPluginManager().registerEvents(this, this);
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new CosmeticsPlaceholders(this).register();
+            getLogger().info("PlaceholderAPI activo: %bastioncosmetics_gemas% disponible.");
+        }
         Bukkit.getScheduler().runTaskTimer(this, this::tickCosmetics, 10L, 3L);
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Reconstruct visual effects and reapply an owned cosmetic only when safe.
@@ -138,7 +142,14 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
     private int safeSlot(int requested, int inventorySize) {return requested>=0 && requested<inventorySize ? requested : 0;}
     private String categoryName(String cat) {return switch (cat) {case "auras" -> "auras"; case "balloons" -> "globos"; default -> "sombreros";};}
     private ConfigurationSection cosmetics(String cat) {return getConfig().getConfigurationSection("cosmetics."+cat);}
-    private int balance(Player player) {
+    int offlineBalance(org.bukkit.OfflinePlayer player) {
+        if (getConfig().getString("settings.gems-source", "internal").equalsIgnoreCase("scoreboard")) {
+            Objective obj = gemObjective();
+            return obj == null || player.getName() == null ? 0 : Math.max(0, obj.getScore(player.getName()).getScore());
+        }
+        return Math.max(0, users.getInt(path(player.getUniqueId()) + "gems", 0));
+    }
+    int balance(Player player) {
         if (getConfig().getString("settings.gems-source", "internal").equalsIgnoreCase("scoreboard")) {
             Objective obj = gemObjective();
             return obj == null ? 0 : Math.max(0, obj.getScore(player.getName()).getScore());
