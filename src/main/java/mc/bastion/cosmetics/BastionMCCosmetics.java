@@ -48,7 +48,15 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
     private static final class View {
         final Inventory inventory;
         final String category;
-        View(Inventory inventory, String category) {this.inventory = inventory; this.category = category;}
+        final int page;
+        final Map<Integer, String> cosmeticSlots;
+        View(Inventory inventory, String category) {this(inventory, category, 0, Map.of());}
+        View(Inventory inventory, String category, int page, Map<Integer, String> cosmeticSlots) {
+            this.inventory = inventory;
+            this.category = category;
+            this.page = page;
+            this.cosmeticSlots = cosmeticSlots;
+        }
     }
 
     @Override public void onEnable() {
@@ -179,38 +187,71 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         player.openInventory(inv);
     }
     private int normalizeSize(int n) {return n>=9 && n<=54 && n%9==0 ? n : 36;}
-    private void categoryMenu(Player player, String cat) {
+    // Content slots are page-relative. Legacy item 'slot' settings are intentionally
+    // ignored so adding cosmetics never overwrites another icon or navigation button.
+    private List<Integer> contentSlots(int size) {
+        List<Integer> slots = new ArrayList<>();
+        Set<Integer> reserved = Set.of(45, 47, 49, 51, 53);
+        for (int row=1; row<=4; row++) {
+            for (int column=1; column<=7; column++) {
+                int slot=row*9+column;
+                if (slot<size-9 && !reserved.contains(slot))slots.add(slot);
+            }
+        }
+        return slots;
+    }
+    private void categoryMenu(Player player, String cat) {categoryMenu(player,cat,0);}
+    private void categoryMenu(Player player, String cat, int page) {
         if (!allowed(player)) {tell(player,"only-world");return;}
-        if (cosmetics(cat)==null) return;
-        int size = normalizeSize(getConfig().getInt("menus.categories.size",36));
-        Inventory inv = Bukkit.createInventory(null,size,c(getConfig().getString("menus.categories.title-"+cat,cat)));
-        fill(inv,"menus.categories.filler-material");
         ConfigurationSection items = cosmetics(cat);
-        for (String id : items.getKeys(false)) {
-            String p="cosmetics."+cat+"."+id+".";
-            int price=Math.max(0,getConfig().getInt(p+"price",0));
+        if (items == null) return;
+        // 54 slots: 4 rows of 7 cosmetic icons + bottom navigation row.
+        int size=54;
+        List<Integer> slots=contentSlots(size);
+        List<String> ids=new ArrayList<>(items.getKeys(false));
+        int pages=Math.max(1,(ids.size()+slots.size()-1)/slots.size());
+        page=Math.max(0,Math.min(page,pages-1));
+        String title=getConfig().getString("menus.categories.title-"+cat,cat)
+            + " &8("+(page+1)+"/"+pages+")";
+        Inventory inv=Bukkit.createInventory(null,size,c(title));
+        fill(inv,"menus.categories.filler-material");
+        Map<Integer,String> shown = new HashMap<>();
+        int first=page*slots.size();
+        for(int i=first;i<Math.min(ids.size(),first+slots.size());i++) {
+            String id=ids.get(i),p="cosmetics."+cat+"."+id+".";
+            int price=Math.max(0,getConfig().getInt(p+"price",20));
             List<String> lines=new ArrayList<>(lore(p+"lore"));
             boolean owned=owns(player,cat,id), current=id.equals(equipped(player,cat));
             String state;
-            if (current) state="equipped";
-            else if (owned) state="owned";
-            else if (isFree(player)) state="free";
-            else if (balance(player)>=price) state="purchasable";
+            if(current)state="equipped";
+            else if(owned)state="owned";
+            else if(isFree(player))state="free";
+            else if(balance(player)>=price)state="purchasable";
             else state="insufficient";
-            for (String line:lore("menus.categories.lore."+state)) lines.add(line.replace("%price%",Integer.toString(price)));
-            ItemStack icon = item(material(p+"material",Material.BARRIER), getConfig().getString(p+"name",id),lines);
-            if (cat.equals("hats") && icon.getType()==Material.PLAYER_HEAD) icon = applyHeadTexture(icon, p, player);
-            if (cat.equals("balloons") && getConfig().getBoolean("settings.show-balloon-heads-in-menu",true)) {
-                icon = balloonHead(id,player);
+            for(String line:lore("menus.categories.lore."+state)) lines.add(line.replace("%price%",Integer.toString(price)));
+            ItemStack icon=item(material(p+"material",Material.BARRIER),getConfig().getString(p+"name",id),lines);
+            if(cat.equals("hats") && icon.getType()==Material.PLAYER_HEAD)icon=applyHeadTexture(icon,p,player);
+            if(cat.equals("balloons") && getConfig().getBoolean("settings.show-balloon-heads-in-menu",true)) {
+                icon=balloonHead(id,player);
                 ItemMeta iconMeta=icon.getItemMeta();
-                if (iconMeta != null) {iconMeta.setDisplayName(c(getConfig().getString(p+"name",id)));iconMeta.setLore(lines.stream().map(this::c).toList());icon.setItemMeta(iconMeta);}
+                if(iconMeta!=null) {
+                    iconMeta.setDisplayName(c(getConfig().getString(p+"name",id)));
+                    iconMeta.setLore(lines.stream().map(this::c).toList());
+                    icon.setItemMeta(iconMeta);
+                }
             }
-            inv.setItem(safeSlot(getConfig().getInt(p+"slot",10),size),icon);
+            int slot=slots.get(i-first);
+            shown.put(slot,id);
+            inv.setItem(slot,icon);
         }
-        int back = safeSlot(getConfig().getInt("menus.categories.back-slot",31),size);
-        inv.setItem(back,item(material("menus.categories.back-material",Material.ARROW),"&e← Volver",List.of("&7Regresa a las categorías")));
-        inv.setItem(size-1,item(Material.EMERALD,"&bGemas: &f"+balance(player),List.of("&7Saldo disponible")));
-        views.put(player.getUniqueId(),new View(inv,cat));
+        if(page>0)inv.setItem(45,item(Material.ARROW,
+            getConfig().getString("menus.categories.previous-name","&e← Página anterior"),List.of("&7Página "+page+" de "+pages)));
+        if(page<pages-1)inv.setItem(53,item(Material.ARROW,
+            getConfig().getString("menus.categories.next-name","&ePágina siguiente →"),List.of("&7Página "+(page+2)+" de "+pages)));
+        inv.setItem(47,item(Material.PAPER,"&ePágina &f"+(page+1)+"&7/&f"+pages,List.of("&7"+ids.size()+" cosméticos")));
+        inv.setItem(49,item(material("menus.categories.back-material",Material.ARROW),"&e← Volver",List.of("&7Regresa a las categorías")));
+        inv.setItem(51,item(Material.EMERALD,"&bGemas: &f"+balance(player),List.of("&7Saldo disponible")));
+        views.put(player.getUniqueId(),new View(inv,cat,page,shown));
         player.openInventory(inv);
     }
     @EventHandler public void onClick(InventoryClickEvent event) {
@@ -237,13 +278,14 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
             }
             return;
         }
-        if (slot==getConfig().getInt("menus.categories.back-slot",31)) {mainMenu(player);return;}
-        ConfigurationSection items=cosmetics(view.category);
-        if (items==null)return;
-        for (String id:items.getKeys(false)) {
-            String cp="cosmetics."+view.category+"."+id;
-            if (slot!=getConfig().getInt(cp+".slot",-1)) continue;
-            if (event.isRightClick()) {unequip(player,view.category,true);categoryMenu(player,view.category);return;}
+        if(slot==49){mainMenu(player);return;}
+        if(slot==45){categoryMenu(player,view.category,view.page-1);return;}
+        if(slot==53){categoryMenu(player,view.category,view.page+1);return;}
+        String id=view.cosmeticSlots.get(slot);
+        if(id==null)return;
+        String cp="cosmetics."+view.category+"."+id;
+        {
+            if (event.isRightClick()) {unequip(player,view.category,true);categoryMenu(player,view.category,view.page);return;}
             if (!event.isLeftClick())return;
             int price=Math.max(0,getConfig().getInt(cp+".price",0));
             boolean owned=owns(player,view.category,id);
@@ -360,7 +402,11 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         return skull;
     }
     private ItemStack balloonHead(String id, Player player) {
-        return applyHeadTexture(new ItemStack(Material.PLAYER_HEAD), "cosmetics.balloons."+id+".", player);
+        String base="cosmetics.balloons."+id+".";
+        Material mat=material(base+"balloon-head-material",Material.PLAYER_HEAD);
+        return mat==Material.PLAYER_HEAD
+            ? applyHeadTexture(new ItemStack(Material.PLAYER_HEAD),base,player)
+            : new ItemStack(mat);
     }
     private void spawnBalloon(Player player) {
         removeBalloon(player.getUniqueId());
@@ -381,7 +427,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
                 chick.setRemoveWhenFarAway(false);
                 chick.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,Integer.MAX_VALUE,0,false,false));
             });
-            head=player.getWorld().spawn(at.clone().add(0,.2,0),ItemDisplay.class, display -> {
+            head=player.getWorld().spawn(at.clone().add(0,.70,0),ItemDisplay.class, display -> {
                 display.setItemStack(balloonHead(id,player));
                 display.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.HEAD);
                 display.setPersistent(false);
@@ -445,7 +491,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
                 else if(ticks%balloonPeriod<3) {
                     Location destination=balloonLocation(p);
                     balloon.leashAnchor.teleport(destination);
-                    balloon.head.teleport(destination.clone().add(0,.2,0));
+                    balloon.head.teleport(destination.clone().add(0,.70,0));
                     if (!balloon.leashAnchor.isLeashed()) balloon.leashAnchor.setLeashHolder(p);
                 }
             }

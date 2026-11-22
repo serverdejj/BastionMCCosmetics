@@ -1,6 +1,5 @@
-# BASTION MC - BastionMCCosmetics 1.2.0
-# Globos: head-texture (hash de textures.minecraft.net); sombreros: helmet y head-texture/head-owner.
-# Auras: count, radius, spiral y settings.aura-period-ticks.
+# BASTION MC - Cosméticos 1.3.0
+# 28 cosméticos por página; añade entradas a cosmetics sin límite fijo.
 settings:
   allowed-worlds:
   - Void
@@ -48,7 +47,7 @@ menus:
         - '&cPRÓXIMAMENTE'
         - '&7Esta sección todavía no abre.'
   categories:
-    size: 45
+    size: 54
     filler-material: GRAY_STAINED_GLASS_PANE
     back-slot: 40
     back-material: ARROW
@@ -77,6 +76,9 @@ menus:
       - '&7Acceso especial'
       - '&eClic izquierdo: reclamar y equipar'
       - '&cClic derecho: desequipar'
+    previous-name: '&e← Página anterior'
+    next-name: '&ePágina siguiente →'
+    page-size: 28
 cosmetics:
   auras:
     fire:
@@ -181,6 +183,60 @@ cosmetics:
       - '&7Partículas especiales que te acompañan.'
       slot: 21
       radius: 0.58
+    snow:
+      name: '&#B4E6FF&lAura de nieve'
+      material: SNOWBALL
+      price: 20
+      particle: SNOWFLAKE
+      count: 15
+      radius: 0.58
+      lore:
+      - '&7Un nuevo efecto alrededor de ti.'
+    ember:
+      name: '&#B4E6FF&lAura de brasas'
+      material: MAGMA_CREAM
+      price: 20
+      particle: LAVA
+      count: 15
+      radius: 0.58
+      lore:
+      - '&7Un nuevo efecto alrededor de ti.'
+    music:
+      name: '&#B4E6FF&lAura musical'
+      material: JUKEBOX
+      price: 20
+      particle: NOTE
+      count: 15
+      radius: 0.58
+      lore:
+      - '&7Un nuevo efecto alrededor de ti.'
+    glow:
+      name: '&#B4E6FF&lAura brillante'
+      material: GLOWSTONE_DUST
+      price: 20
+      particle: GLOW
+      count: 15
+      radius: 0.58
+      lore:
+      - '&7Un nuevo efecto alrededor de ti.'
+    crimson:
+      name: '&#B4E6FF&lAura carmesí'
+      material: NETHER_WART
+      price: 20
+      particle: CRIMSON_SPORE
+      count: 15
+      radius: 0.58
+      lore:
+      - '&7Un nuevo efecto alrededor de ti.'
+    water:
+      name: '&#B4E6FF&lAura acuática'
+      material: HEART_OF_THE_SEA
+      price: 20
+      particle: SPLASH
+      count: 15
+      radius: 0.58
+      lore:
+      - '&7Un nuevo efecto alrededor de ti.'
   balloons:
     red:
       slot: 10
@@ -232,7 +288,7 @@ cosmetics:
       material: ORANGE_WOOL
       price: 20
       head-owner: ''
-      head-texture: 61485349006ed1c91b7959aff44f330ddac35e3d9a99ea82051f986ecda4755
+      head-texture: 18046d38a97c91f59949ea742efd74827ccedefe98528552cd327b4b61c39b5f
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 15
@@ -241,7 +297,7 @@ cosmetics:
       material: PURPLE_WOOL
       price: 20
       head-owner: ''
-      head-texture: 76387fc246893d92a6dd9ea1b52dcd581e991eee2e263b27fff1bcf1b154eb7
+      head-texture: 4f24767c8138b3dfec02f77bd151994d480d4e869664ce09a26b19289212162b
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 16
@@ -272,6 +328,48 @@ cosmetics:
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 21
+    galaxy:
+      name: '&#8ADCF9&lGlobo Galaxia'
+      material: PURPLE_WOOL
+      price: 20
+      head-texture: 4f24767c8138b3dfec02f77bd151994d480d4e869664ce09a26b19289212162b
+      lore:
+      - '&7Cabeza flotante con cuerda.'
+    ruby:
+      name: '&#8ADCF9&lGlobo Rubí'
+      material: RED_WOOL
+      price: 20
+      head-texture: 52dd11da04252f76b6934bc26612f54f264f30eed74df89941209e191bebc0a2
+      lore:
+      - '&7Cabeza flotante con cuerda.'
+    ice:
+      name: '&#8ADCF9&lGlobo Hielo'
+      material: LIGHT_BLUE_WOOL
+      price: 20
+      head-texture: f868e6a5c4a445d60a3050b5bec1d37af1b25943745d2d479800c8436488065a
+      lore:
+      - '&7Cabeza flotante con cuerda.'
+    sun:
+      name: '&#8ADCF9&lGlobo Sol'
+      material: YELLOW_WOOL
+      price: 20
+      head-texture: 18046d38a97c91f59949ea742efd74827ccedefe98528552cd327b4b61c39b5f
+      lore:
+      - '&7Cabeza flotante con cuerda.'
+    forest:
+      name: '&#8ADCF9&lGlobo Bosque'
+      material: GREEN_WOOL
+      price: 20
+      head-texture: a26ec7cd3b6ae249997137c1b94867c66e97499da071bf50adfd37034132fa03
+      lore:
+      - '&7Cabeza flotante con cuerda.'
+    candy:
+      name: '&#8ADCF9&lGlobo Caramelo'
+      material: PINK_WOOL
+      price: 20
+      head-texture: afa4175b73cd84c45c5aa7ec0adbe7481342c01ae75077137b504be3188dc5ab
+      lore:
+      - '&7Cabeza flotante con cuerda.'
   hats:
     crown:
       slot: 10
@@ -354,6 +452,156 @@ cosmetics:
       lore:
       - '&7Un aspecto especial para tu cabeza.'
       slot: 21
+    astronaut:
+      name: '&#F8CF72&lAstronauta'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: 728207f6f1309ea324c7d19d31f41312998e52fdffac034a98e265ea1bd0809b
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    cofre:
+      name: '&#F8CF72&lCofre'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: 2e144614cbabbf03e03d88be0a68889d9439d973d636737d5d982f3358d7c1ea
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    spiderman:
+      name: '&#F8CF72&lSpider-Man'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: 17c6934d1ee188abb2e5b95f6be95c58aa4051c6ebaebf8a9fcb2b6442bf7b20
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    batman:
+      name: '&#F8CF72&lBatman'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: e064c1b2a6621afddba10065922c09f3c5711e7d6b85e2918c9a26b48e67653c
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    discord:
+      name: '&#F8CF72&lDiscord'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: 7c642b4dca65c53d7d5050091c04f72db6484a3e9b613b43da1bdb433741b639
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    youtube:
+      name: '&#F8CF72&lYouTube'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: c767ed79ede7b581de4c6c731f5b8598924cf456e5a4040e27fdf25ac602531d
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    tiktok:
+      name: '&#F8CF72&lTikTok'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: 501acfc7f51eb7b49de996442e1f58a2da5d85ad30c00fa873f8e340ea6c24ef
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    instagram:
+      name: '&#F8CF72&lInstagram'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: 25b3f2cfa0739c4e828316f39f90b05bc1f4ed27b1e35888511f558d4675
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    dinosaurio:
+      name: '&#F8CF72&lDinosaurio'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      head-texture: 60f417786e8966bdf413ed3233fa3c4b6520fb78b97eef6a21163da497b4907d
+      lore:
+      - '&7Cabeza personalizada para tu personaje.'
+    piglin_brute:
+      name: '&#A1D8FF&lPiglin bárbaro'
+      material: PIGLIN_HEAD
+      helmet: PIGLIN_HEAD
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    zombie_king:
+      name: '&#A1D8FF&lRey zombi'
+      material: ZOMBIE_HEAD
+      helmet: ZOMBIE_HEAD
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    dragon_dark:
+      name: '&#A1D8FF&lDragón oscuro'
+      material: DRAGON_HEAD
+      helmet: DRAGON_HEAD
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    creeper_party:
+      name: '&#A1D8FF&lCreeper explosivo'
+      material: CREEPER_HEAD
+      helmet: CREEPER_HEAD
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    skeleton_shadow:
+      name: '&#A1D8FF&lEsqueleto sombrío'
+      material: WITHER_SKELETON_SKULL
+      helmet: WITHER_SKELETON_SKULL
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    golden_knight:
+      name: '&#A1D8FF&lCaballero dorado'
+      material: GOLDEN_HELMET
+      helmet: GOLDEN_HELMET
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    diamond_knight:
+      name: '&#A1D8FF&lCaballero diamante'
+      material: DIAMOND_HELMET
+      helmet: DIAMOND_HELMET
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    netherite_knight:
+      name: '&#A1D8FF&lCaballero Netherite'
+      material: NETHERITE_HELMET
+      helmet: NETHERITE_HELMET
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    sea_guardian:
+      name: '&#A1D8FF&lGuardián marino'
+      material: TURTLE_HELMET
+      helmet: TURTLE_HELMET
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    jack_o_lantern:
+      name: '&#A1D8FF&lCalabaza tenebrosa'
+      material: CARVED_PUMPKIN
+      helmet: CARVED_PUMPKIN
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+    astronaut_blue:
+      name: '&#A1D8FF&lAstronauta azul'
+      material: PLAYER_HEAD
+      helmet: PLAYER_HEAD
+      price: 20
+      lore:
+      - '&7Sombrero extra de BASTION MC.'
+      head-texture: 728207f6f1309ea324c7d19d31f41312998e52fdffac034a98e265ea1bd0809b
 messages:
   prefix: '&#F3BB23&lBASTION MC &8▸ '
   no-permission: '&cNo tienes permiso.'
@@ -373,6 +621,5 @@ messages:
   invalid-number: '&cIntroduce una cantidad entera entre 0 y 1,000,000,000.'
   no-scoreboard: '&cNo existe el objetivo del scoreboard configurado para las gemas.'
   reloaded: '&aConfiguración recargada.'
-  usage: '&e/gemas &7| &e/gemas add <jugador> <cantidad> &7| &e/gemas remove <jugador> <cantidad> &7| &e/gemas set <jugador>
-    <cantidad>'
+  usage: '&e/gemas &7| &e/gemas add <jugador> <cantidad> &7| &e/gemas remove <jugador> <cantidad> &7| &e/gemas set <jugador> <cantidad>'
   help: '&e/cosmeticos &7| &e/cosmeticos reload'
