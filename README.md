@@ -21,3 +21,7 @@
 - Compila Java 21 para Purpur 1.21.11 usando GitHub Actions. Reemplaza `config.yml` para cargar los nuevos productos; **no borres `players.yml`**.
 
 **Nota:** proyecto fuente, sin validación de ejecución en servidor. Verificar animación y texturas in-game.
+
+## v1.3.2 - corrección de compilación
+- Import correcto de `org.bukkit.event.player.PlayerUnleashEntityEvent` para Paper/Purpur 1.21.11.
+- Sin cambios en los cosméticos ni en los archivos de datos de los jugadores.

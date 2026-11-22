@@ -10,7 +10,7 @@ import org.bukkit.entity.Chicken;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityUnleashEvent;
-import org.bukkit.event.entity.PlayerUnleashEntityEvent;
+import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
