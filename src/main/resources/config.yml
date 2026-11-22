@@ -1,118 +1,352 @@
-# BASTION MC - Todos los textos, materiales, slots y precios son editables.
-# Colores: &6, &l y HEX &#RRGGBB. Los degradados se escriben caracter por caracter.
-# No se requieren mods ni resource packs.
+# BASTION MC - Version 1.1.0 - 10 auras, 10 globos, 10 sombreros, 20 gemas cada uno.
+# Todos los textos/materiales/precios/slots son editables; HEX legacy &#RRGGBB y &.
 settings:
-  # El plugin solo permite usar cosmeticos en estos mundos.
-  allowed-worlds: [Void, void, spawn]
+  allowed-worlds:
+  - Void
+  - void
+  - spawn
   aura-period-ticks: 8
   balloon-period-ticks: 3
-  # scoreboard: integra una puntuacion del scoreboard vanilla que YA exista.
-  # internal: mantiene gemas propias en players.yml (valor predeterminado).
   gems-source: internal
   scoreboard-objective: gemas
   gems-label: '&#53DDFD&lGEMAS'
+  balloon-description: Cabezas de jugador con correa visible; head-owner o head-texture editable en cada globo.
 menus:
   main:
     title: '&#F3BB23&lBASTION &f| &eCosméticos'
     size: 27
     filler-material: BLACK_STAINED_GLASS_PANE
     sections:
-      auras: {slot: 10, material: BLAZE_POWDER, name: '&#FFBD51&l✦ AURAS', lore: ['&7Partículas que te rodean.', '&eClic para explorar.']}
-      balloons: {slot: 12, material: LEAD, name: '&#62D9FF&l✦ GLOBOS', lore: ['&7Un globo que te acompaña.', '&eClic para explorar.']}
-      hats: {slot: 14, material: GOLDEN_HELMET, name: '&#FFD873&l✦ SOMBREROS', lore: ['&7Luce un sombrero especial.', '&eClic para explorar.']}
-      pets: {slot: 16, material: WOLF_SPAWN_EGG, name: '&#AAAAAA&l✦ MASCOTAS', lore: ['&cPRÓXIMAMENTE', '&7Esta sección todavía no abre.']}
+      auras:
+        slot: 10
+        material: BLAZE_POWDER
+        name: '&#FFBD51&l✦ AURAS'
+        lore:
+        - '&7Partículas que te rodean.'
+        - '&eClic para explorar.'
+      balloons:
+        slot: 12
+        material: LEAD
+        name: '&#62D9FF&l✦ GLOBOS'
+        lore:
+        - '&7Un globo que te acompaña.'
+        - '&eClic para explorar.'
+      hats:
+        slot: 14
+        material: GOLDEN_HELMET
+        name: '&#FFD873&l✦ SOMBREROS'
+        lore:
+        - '&7Luce un sombrero especial.'
+        - '&eClic para explorar.'
+      pets:
+        slot: 16
+        material: WOLF_SPAWN_EGG
+        name: '&#AAAAAA&l✦ MASCOTAS'
+        lore:
+        - '&cPRÓXIMAMENTE'
+        - '&7Esta sección todavía no abre.'
   categories:
-    size: 36
+    size: 45
     filler-material: GRAY_STAINED_GLASS_PANE
-    back-slot: 31
+    back-slot: 40
     back-material: ARROW
     title-auras: '&#F3BB23&lBASTION &f| &6Auras'
     title-balloons: '&#F3BB23&lBASTION &f| &bGlobos'
     title-hats: '&#F3BB23&lBASTION &f| &eSombreros'
     lore:
-      owned: ['&a✔ Desbloqueado', '&eClic izquierdo: equipar', '&cClic derecho: desequipar']
-      equipped: ['&a✔ EQUIPADO', '&eClic izquierdo: equipar', '&cClic derecho: desequipar']
-      purchasable: ['&bPrecio: &f%price% gemas', '&eClic izquierdo: comprar y equipar', '&cClic derecho: desequipar']
-      insufficient: ['&cPrecio: %price% gemas', '&cNo tienes suficientes gemas', '&eClic izquierdo: intentar comprar']
-      free: ['&aGRATIS: acceso especial', '&eClic izquierdo: reclamar y equipar', '&cClic derecho: desequipar']
+      owned:
+      - '&a✔ DESBLOQUEADO'
+      - '&eClic izquierdo: equipar'
+      - '&cClic derecho: desequipar'
+      equipped:
+      - '&a✔ EQUIPADO'
+      - '&eClic izquierdo: equipar'
+      - '&cClic derecho: desequipar'
+      purchasable:
+      - '&eDESBLOQUEAR - &b%price% gemas'
+      - '&eClic izquierdo: desbloquear y equipar'
+      - '&cClic derecho: desequipar'
+      insufficient:
+      - '&cDESBLOQUEAR - %price% gemas'
+      - '&cNo tienes suficientes gemas'
+      - '&eClic izquierdo: intentar desbloquear'
+      free:
+      - '&a✔ DESBLOQUEADO'
+      - '&7Acceso especial'
+      - '&eClic izquierdo: reclamar y equipar'
+      - '&cClic derecho: desequipar'
 cosmetics:
   auras:
     fire:
       slot: 10
       name: '&#FF9C52&lAura de fuego'
       material: BLAZE_POWDER
-      price: 100
+      price: 20
       particle: FLAME
       count: 7
-      lore: ['&7Chispas de fuego alrededor de ti.']
+      lore:
+      - '&7Chispas de fuego alrededor de ti.'
     magic:
-      slot: 13
+      slot: 11
       name: '&#C77DFF&lAura mágica'
       material: ENCHANTED_BOOK
-      price: 175
+      price: 20
       particle: ENCHANT
       count: 12
-      lore: ['&7Energía arcana alrededor de ti.']
+      lore:
+      - '&7Energía arcana alrededor de ti.'
     hearts:
-      slot: 16
+      slot: 12
       name: '&#FF6FA2&lAura de corazones'
       material: PINK_DYE
-      price: 250
+      price: 20
       particle: HEART
       count: 2
-      lore: ['&7Pequeños corazones a tu alrededor.']
+      lore:
+      - '&7Pequeños corazones a tu alrededor.'
+    stars:
+      name: '&#F8F3BB&lAura estelar'
+      material: NETHER_STAR
+      price: 20
+      particle: END_ROD
+      count: 5
+      lore:
+      - '&7Partículas especiales que te acompañan.'
+      slot: 13
+    nature:
+      name: '&#72E996&lAura natural'
+      material: OAK_SAPLING
+      price: 20
+      particle: HAPPY_VILLAGER
+      count: 8
+      lore:
+      - '&7Partículas especiales que te acompañan.'
+      slot: 14
+    souls:
+      name: '&#58DAFF&lAura de almas'
+      material: SOUL_TORCH
+      price: 20
+      particle: SOUL_FIRE_FLAME
+      count: 5
+      lore:
+      - '&7Partículas especiales que te acompañan.'
+      slot: 15
+    portal:
+      name: '&#A87DFA&lAura del vacío'
+      material: ENDER_EYE
+      price: 20
+      particle: PORTAL
+      count: 12
+      lore:
+      - '&7Partículas especiales que te acompañan.'
+      slot: 16
+    clouds:
+      name: '&#E6E6E6&lAura de nubes'
+      material: WHITE_DYE
+      price: 20
+      particle: CLOUD
+      count: 7
+      lore:
+      - '&7Partículas especiales que te acompañan.'
+      slot: 19
+    witch:
+      name: '&#CC81FB&lAura de hechizos'
+      material: BREWING_STAND
+      price: 20
+      particle: WITCH
+      count: 6
+      lore:
+      - '&7Partículas especiales que te acompañan.'
+      slot: 20
+    totem:
+      name: '&#FFD35C&lAura legendaria'
+      material: TOTEM_OF_UNDYING
+      price: 20
+      particle: TOTEM_OF_UNDYING
+      count: 6
+      lore:
+      - '&7Partículas especiales que te acompañan.'
+      slot: 21
   balloons:
     red:
       slot: 10
       name: '&#FF6161&lGlobo rojo'
       material: RED_WOOL
-      price: 120
-      balloon-text: '&#FF5555⬤\n&7│'
-      lore: ['&7Un globo rojo flotante.']
+      price: 20
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      head-owner: MHF_MushroomCow
+      head-texture: ''
     blue:
-      slot: 13
+      slot: 11
       name: '&#6ACBFF&lGlobo azul'
       material: LIGHT_BLUE_WOOL
-      price: 180
-      balloon-text: '&#55AAFF⬤\n&7│'
-      lore: ['&7Un globo azul flotante.']
+      price: 20
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      head-owner: MHF_Squid
+      head-texture: ''
     gold:
-      slot: 16
+      slot: 12
       name: '&#FFD75D&lGlobo dorado'
       material: GOLD_BLOCK
-      price: 350
-      balloon-text: '&#FFDA46⬤\n&7│'
-      lore: ['&7Un globo dorado especial.']
+      price: 20
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      head-owner: MHF_Blaze
+      head-texture: ''
+    green:
+      name: '&#75F275&lGlobo slime'
+      material: LIME_WOOL
+      price: 20
+      head-owner: MHF_Slime
+      head-texture: ''
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      slot: 13
+    pink:
+      name: '&#FFA0CA&lGlobo cerdito'
+      material: PINK_WOOL
+      price: 20
+      head-owner: MHF_Pig
+      head-texture: ''
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      slot: 14
+    orange:
+      name: '&#FFAF51&lGlobo blaze'
+      material: ORANGE_WOOL
+      price: 20
+      head-owner: MHF_Blaze
+      head-texture: ''
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      slot: 15
+    purple:
+      name: '&#AD80FF&lGlobo enderman'
+      material: PURPLE_WOOL
+      price: 20
+      head-owner: MHF_Enderman
+      head-texture: ''
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      slot: 16
+    white:
+      name: '&#E7E7E7&lGlobo fantasma'
+      material: WHITE_WOOL
+      price: 20
+      head-owner: MHF_Ghast
+      head-texture: ''
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      slot: 19
+    black:
+      name: '&#848484&lGlobo wither'
+      material: BLACK_WOOL
+      price: 20
+      head-owner: MHF_WitherSkeleton
+      head-texture: ''
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      slot: 20
+    cyan:
+      name: '&#49D6F0&lGlobo océano'
+      material: CYAN_WOOL
+      price: 20
+      head-owner: MHF_Squid
+      head-texture: ''
+      lore:
+      - '&7Una cabeza flotante con correa.'
+      slot: 21
   hats:
     crown:
       slot: 10
       name: '&#FFD15C&lCorona de oro'
       material: GOLDEN_HELMET
-      price: 150
+      price: 20
       helmet: GOLDEN_HELMET
-      lore: ['&7Una corona digna de un rey.']
+      lore:
+      - '&7Una corona digna de un rey.'
     turtle:
-      slot: 13
+      slot: 11
       name: '&#66DD88&lSombrero de tortuga'
       material: TURTLE_HELMET
-      price: 190
+      price: 20
       helmet: TURTLE_HELMET
-      lore: ['&7Un estilo marino.']
+      lore:
+      - '&7Un estilo marino.'
     pumpkin:
-      slot: 16
+      slot: 12
       name: '&#FFB35C&lCalabaza traviesa'
       material: CARVED_PUMPKIN
-      price: 85
+      price: 20
       helmet: CARVED_PUMPKIN
-      lore: ['&7Una calabaza para la cabeza.']
+      lore:
+      - '&7Una calabaza para la cabeza.'
+    leather:
+      name: '&#CE9567&lSombrero aventurero'
+      material: LEATHER_HELMET
+      price: 20
+      helmet: LEATHER_HELMET
+      lore:
+      - '&7Un aspecto especial para tu cabeza.'
+      slot: 13
+    chain:
+      name: '&#B3B5C4&lSombrero de cadenas'
+      material: CHAINMAIL_HELMET
+      price: 20
+      helmet: CHAINMAIL_HELMET
+      lore:
+      - '&7Un aspecto especial para tu cabeza.'
+      slot: 14
+    iron:
+      name: '&#CDDEE5&lSombrero de hierro'
+      material: IRON_HELMET
+      price: 20
+      helmet: IRON_HELMET
+      lore:
+      - '&7Un aspecto especial para tu cabeza.'
+      slot: 15
+    diamond:
+      name: '&#65E1EF&lSombrero de diamante'
+      material: DIAMOND_HELMET
+      price: 20
+      helmet: DIAMOND_HELMET
+      lore:
+      - '&7Un aspecto especial para tu cabeza.'
+      slot: 16
+    netherite:
+      name: '&#B9A8CE&lSombrero de netherite'
+      material: NETHERITE_HELMET
+      price: 20
+      helmet: NETHERITE_HELMET
+      lore:
+      - '&7Un aspecto especial para tu cabeza.'
+      slot: 19
+    skeleton:
+      name: '&#EBEBEB&lCabeza esqueleto'
+      material: SKELETON_SKULL
+      price: 20
+      helmet: SKELETON_SKULL
+      lore:
+      - '&7Un aspecto especial para tu cabeza.'
+      slot: 20
+    dragon:
+      name: '&#AD82E6&lCabeza dragón'
+      material: DRAGON_HEAD
+      price: 20
+      helmet: DRAGON_HEAD
+      lore:
+      - '&7Un aspecto especial para tu cabeza.'
+      slot: 21
 messages:
   prefix: '&#F3BB23&lBASTION MC &8▸ '
   no-permission: '&cNo tienes permiso.'
   only-world: '&cLos cosméticos solo están disponibles en el lobby.'
   upcoming: '&eLas mascotas estarán disponibles próximamente.'
-  not-enough-gems: '&cNo tienes suficientes gemas.'
+  not-enough-gems: '&cNo tienes suficiente gemas.'
   purchased: '&a¡Compraste &f%cosmetic% &apor &b%price% gemas&a!'
-  free-claimed: '&a¡Reclamaste gratis &f%cosmetic%&a!'
+  free-claimed: '&a¡Desbloqueaste &f%cosmetic%&a!'
   equipped: '&aEquipaste &f%cosmetic%&a.'
   unequipped: '&eTe quitaste el cosmético de &f%category%&e.'
   not-equipped: '&7No tienes ningún cosmético equipado en esa categoría.'

@@ -6,7 +6,15 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
+import java.net.URL;
 import org.bukkit.event.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
@@ -24,7 +32,12 @@ import java.util.regex.*;
 
 public final class BastionMCCosmetics extends JavaPlugin implements Listener, CommandExecutor, TabCompleter {
     private final Map<UUID, View> views = new HashMap<>();
-    private final Map<UUID, TextDisplay> balloons = new HashMap<>();
+    private final Map<UUID, Balloon> balloons = new HashMap<>();
+    private static final class Balloon {
+        final Chicken leashAnchor;
+        final ItemDisplay head;
+        Balloon(Chicken anchor, ItemDisplay display) { this.leashAnchor=anchor; this.head=display; }
+    }
     private File usersFile;
     private FileConfiguration users;
     private long ticks = 0;
@@ -295,36 +308,81 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         if (clearRecord) setEquipped(p,"hats","");
     }
     private void removeBalloon(UUID uuid) {
-        TextDisplay display=balloons.remove(uuid);
-        if (display!=null)safeRemove(display);
+        Balloon balloon=balloons.remove(uuid);
+        if (balloon!=null)safeRemove(balloon);
     }
-    private void safeRemove(TextDisplay e) {try {if(e.isValid())e.remove();}catch(Exception ignored){}}
+    private void safeRemove(Balloon balloon) {
+        try {if (balloon.head.isValid())balloon.head.remove();}catch(Exception ignored){}
+        try {if (balloon.leashAnchor.isValid())balloon.leashAnchor.remove();}catch(Exception ignored){}
+    }
+    private ItemStack balloonHead(String id, Player player) {
+        String base="cosmetics.balloons."+id+".";
+        ItemStack skull=new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta=(SkullMeta)skull.getItemMeta();
+        String texture=getConfig().getString(base+"head-texture","").trim();
+        String owner=getConfig().getString(base+"head-owner","MHF_Slime").trim();
+        if (!texture.isEmpty()) {
+            // Optional direct Mojang texture hash: useful to customize the balloon without recompiling.
+            try {
+                if (!texture.matches("[0-9a-fA-F]{32,128}"))throw new IllegalArgumentException("invalid texture hash");
+                PlayerProfile profile=Bukkit.createPlayerProfile(UUID.randomUUID());
+                PlayerTextures textures=profile.getTextures();
+                textures.setSkin(new URL("https://textures.minecraft.net/texture/"+texture));
+                profile.setTextures(textures);
+                meta.setOwnerProfile(profile);
+            } catch (Exception ex) {
+                getLogger().warning("Textura de globo incorrecta para "+id+": "+ex.getMessage());
+            }
+        } else if (owner.equalsIgnoreCase("%player%")) {
+            meta.setOwningPlayer(player);
+        } else {
+            meta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+        }
+        skull.setItemMeta(meta);
+        return skull;
+    }
     private void spawnBalloon(Player player) {
         removeBalloon(player.getUniqueId());
         if(!allowed(player))return;
         String id=equipped(player,"balloons");
-        if(id.isEmpty())return;
-        String text=getConfig().getString("cosmetics.balloons."+id+".balloon-text","&c⬤\\n&7│").replace("\\n","\n");
+        if(id.isBlank())return;
         Location at=balloonLocation(player);
+        Chicken anchor=null;
+        ItemDisplay head=null;
         try {
-            TextDisplay display=player.getWorld().spawn(at, TextDisplay.class, entity -> {
-                entity.setText(c(text));
-                entity.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
-                entity.setSeeThrough(true);
-                entity.setShadowed(false);
-                entity.setDefaultBackground(false);
-                entity.setPersistent(false);
+            anchor=player.getWorld().spawn(at,Chicken.class, chick -> {
+                chick.setAI(false);
+                chick.setGravity(false);
+                chick.setSilent(true);
+                chick.setInvulnerable(true);
+                chick.setCollidable(false);
+                chick.setPersistent(false);
+                chick.setRemoveWhenFarAway(false);
+                chick.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,Integer.MAX_VALUE,0,false,false));
             });
-            balloons.put(player.getUniqueId(),display);
-        }catch(Exception ex){getLogger().warning("Globo: "+ex.getMessage());}
+            head=player.getWorld().spawn(at.clone().add(0,.2,0),ItemDisplay.class, display -> {
+                display.setItemStack(balloonHead(id,player));
+                display.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.HEAD);
+                display.setPersistent(false);
+                display.setInvulnerable(true);
+                display.setInterpolationDuration(3);
+                display.setTeleportDuration(3);
+            });
+            anchor.setLeashHolder(player);
+            balloons.put(player.getUniqueId(),new Balloon(anchor,head));
+        }catch(Exception ex) {
+            getLogger().warning("No se pudo crear globo "+id+": "+ex.getMessage());
+            if(head!=null)head.remove();
+            if(anchor!=null)anchor.remove();
+        }
     }
     private Location balloonLocation(Player p) {
         Location base=p.getLocation().clone();
         Vector forward=base.getDirection().setY(0);
         if(forward.lengthSquared()<0.01) forward=new Vector(1,0,0);
         forward.normalize();
-        Vector side=new Vector(-forward.getZ(),0,forward.getX()).multiply(0.75);
-        return base.add(side).add(0,2.1,0);
+        Vector side=new Vector(-forward.getZ(),0,forward.getX()).multiply(1.05);
+        return base.add(side).add(0,2.35,0);
     }
     private void tickCosmetics() {
         ticks+=3;
@@ -346,9 +404,14 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
                 catch(Exception ignored){}
             }
             if(!equipped(p,"balloons").isEmpty()) {
-                TextDisplay display=balloons.get(p.getUniqueId());
-                if(display==null || !display.isValid() || !display.getWorld().equals(p.getWorld()))spawnBalloon(p);
-                else if(ticks%balloonPeriod<3) display.teleport(balloonLocation(p));
+                Balloon balloon=balloons.get(p.getUniqueId());
+                if(balloon==null || !balloon.head.isValid() || !balloon.leashAnchor.isValid() || !balloon.head.getWorld().equals(p.getWorld()))spawnBalloon(p);
+                else if(ticks%balloonPeriod<3) {
+                    Location destination=balloonLocation(p);
+                    balloon.leashAnchor.teleport(destination);
+                    balloon.head.teleport(destination.clone().add(0,.2,0));
+                    if (!balloon.leashAnchor.isLeashed()) balloon.leashAnchor.setLeashHolder(p);
+                }
             }
         }
     }

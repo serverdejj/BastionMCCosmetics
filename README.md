@@ -1,37 +1,29 @@
-# BastionMCCosmetics 1.0.0 — BASTION MC
+# BastionMCCosmetics 1.1.0 - BASTION MC
 
-Plugin independiente para Purpur/Paper 1.21.11, Java 21.
+Compatible con Purpur 1.21.11 / Java 21. Proyecto fuente listo para GitHub Actions. No es un JAR compilado.
 
-## Funciones
-- `/cosmeticos` y `/cosmetics`: GUI principal → Auras, Globos, Sombreros y Mascotas (Próximamente).
-- Clic izquierdo: compra y equipa. Clic derecho: desequipa la categoría.
-- Si no alcanza el saldo, precio rojo y al intentar comprar cierra el menú y avisa en chat.
-- OP o permiso `bastioncosmetics.free`: reclamar sin pagar; las compras se guardan por UUID.
-- Gemas persistentes internas independientes de Vault, con opción `settings.gems-source: scoreboard` para integrar un objetivo *vanilla* del scoreboard. NO se enlaza automáticamente al saldo visible de otros plugins; comprueba qué lo alimenta.
-- Efectos de partículas para auras, TextDisplay flotante para globos, cascos reales para sombreros.
-- Menús, iconos, materiales, posiciones, costos, mensajes y HEX legacy `&#RRGGBB` modificables en `config.yml`.
+## Cambios
+- **10 auras, 10 globos y 10 sombreros**, todos de **20 gemas**.
+- En la GUI: para OP/permisos especiales, **DESBLOQUEADO**; para los demás sin comprar, **DESBLOQUEAR - 20 gemas** (en rojo si no alcanzan las gemas).
+- Con clic izquierdo, se reclama o se paga y equipa. Con clic derecho, se desequipa. Los datos siguen en `players.yml`, que nunca debes borrar.
+- Globos ahora son **cabezas con textura de jugador** (`ItemDisplay`) y correa vanilla que sale de una gallina invisible (`Chicken`) atada al jugador. El globo se mueve contigo y se elimina al desconectarte. No más letras/hologramas flotantes.
+- Los `head-owner` son ejemplos MHF_ y pueden reemplazarse por nombres Minecraft; para una textura personalizada, en cada globo se puede configurar `head-texture` con un hash de textures.minecraft.net. Las cabezas de propietarios requieren que el servidor resuelva las skins.
+- Mascotas mantienen el cartel **PRÓXIMAMENTE**.
 
-## Compilar
-1. Sube todos los archivos del ZIP (con sus carpetas) a un repositorio de GitHub.
-2. GitHub → Actions → `Compilar BastionMCCosmetics` → Run workflow.
-3. Descarga el artifact `BastionMCCosmetics-JAR` y extrae el .jar.
-4. Instala el JAR en `plugins/` de tu Lobby y reinicia.
+## Instalación
+1. Haz copia de `plugins/BastionMCCosmetics/players.yml` (guarda saldo y compras).
+2. Reemplaza el repositorio de GitHub con esta versión, incluyendo `.github/workflows/build.yml`.
+3. Ejecuta Actions → Compilar BastionMCCosmetics; descarga el JAR del Artifacts y úsalo en `plugins/`.
+4. **Reemplaza también** `plugins/BastionMCCosmetics/config.yml` con el que trae este ZIP: `src/main/resources/config.yml`. `saveDefaultConfig()` **no sobreescribe** tu antiguo config.yml.
+5. Reinicia el lobby. Si usas `/cosmeticos reload`, también se recrean los globos.
 
-## Gemas y permisos
-- `/gemas` : consultar saldo propio.
-- `/gemas <jugador>`: consultar saldo de jugador conectado (admin).
-- `/gemas add <jugador> <cantidad>`: dar gemas (admin).
-- `/gemas remove <jugador> <cantidad>`: quitar gemas (admin).
-- `/gemas set <jugador> <cantidad>`: establecer gemas (admin).
-- `/cosmeticos reload` : recargar YAML (admin).
-- `bastioncosmetics.use` (`default: true`).
-- `bastioncosmetics.admin` (`default: op`).
-- `bastioncosmetics.free` (`default: op`) — por ejemplo con LuckPerms:
-  `lp user JJFOOX permission set bastioncosmetics.free true`
+## Permisos
+- OP o `bastioncosmetics.free`: desbloquea sin pagar.
+- `bastioncosmetics.use`: accede al menú (default).
+- `bastioncosmetics.admin`: recarga y administra gemas (OP por defecto).
 
-## Seguridad/limitaciones conocidas
-- Por seguridad, un sombrero cosmético **solo puede equiparse cuando el espacio del casco está vacío**. Al quitarlo, al salir del lobby o desactivar el plugin se retira. No coloques cascos de combate en el lobby mientras llevas un sombrero.
-- Los globos son representaciones de texto flotante, no modelos con cuerda real. Si quieres globos modelados, será necesario recurso gráfico/versión posterior.
-- El modo `scoreboard` usa el *scoreboard principal* del servidor, no un placeholder de otra economía. Si tu sidebar `Gemas: 0` proviene de otro plugin, mantén modo `internal` hasta conocer la fuente.
-- Los cosméticos solo funcionan en mundos `Void`, `void` y `spawn` por defecto (modificable).
-- La funcionalidad está preparada como código fuente, pero debe compilarse y probarse en tu servidor antes de considerarla definitiva.
+## Gemas
+Con `settings.gems-source: internal` se guardan en `players.yml`, independientes de cualquier marcador de otro plugin. Puedes integrar el scoreboard real luego de confirmar su origen.
+
+## Nota técnica
+El leash vanilla depende de la sincronización de entidades y puede verse brevemente tensado/soltado durante teletransportes rápidos. Se recomienda probarlo sobre el Lobby para confirmar que tu cliente muestra correctamente los heads y la correa. El código se ha inspeccionado, pero el JAR aún debe compilarse y probarse en tu servidor.
