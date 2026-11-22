@@ -1,0 +1,24 @@
+name: BastionMCCosmetics
+version: 1.0.0
+main: mc.bastion.cosmetics.BastionMCCosmetics
+api-version: '1.21'
+author: BASTION MC
+description: Cosmeticos con gemas para el lobby BASTION MC
+commands:
+  cosmeticos:
+    description: Abre el menu de cosmeticos
+    aliases: [cosmetics, cosmetico]
+    permission: bastioncosmetics.use
+    usage: /cosmeticos
+  gemas:
+    description: Consulta o administra gemas
+    usage: /gemas [add|remove|set] [jugador] [cantidad]
+permissions:
+  bastioncosmetics.use:
+    default: true
+  bastioncosmetics.free:
+    description: Reclama todos los cosmeticos gratis
+    default: op
+  bastioncosmetics.admin:
+    description: Administra gemas y recarga configuracion
+    default: op
