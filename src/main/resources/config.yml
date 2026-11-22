@@ -1,16 +1,18 @@
-# BASTION MC - Version 1.1.0 - 10 auras, 10 globos, 10 sombreros, 20 gemas cada uno.
-# Todos los textos/materiales/precios/slots son editables; HEX legacy &#RRGGBB y &.
+# BASTION MC - BastionMCCosmetics 1.2.0
+# Globos: head-texture (hash de textures.minecraft.net); sombreros: helmet y head-texture/head-owner.
+# Auras: count, radius, spiral y settings.aura-period-ticks.
 settings:
   allowed-worlds:
   - Void
   - void
   - spawn
-  aura-period-ticks: 8
+  aura-period-ticks: 6
   balloon-period-ticks: 3
   gems-source: internal
   scoreboard-objective: gemas
   gems-label: '&#53DDFD&lGEMAS'
   balloon-description: Cabezas de jugador con correa visible; head-owner o head-texture editable en cada globo.
+  show-balloon-heads-in-menu: true
 menus:
   main:
     title: '&#F3BB23&lBASTION &f| &eCosméticos'
@@ -83,90 +85,102 @@ cosmetics:
       material: BLAZE_POWDER
       price: 20
       particle: FLAME
-      count: 7
+      count: 27
       lore:
       - '&7Chispas de fuego alrededor de ti.'
+      radius: 0.68
+      spiral: true
     magic:
       slot: 11
       name: '&#C77DFF&lAura mágica'
       material: ENCHANTED_BOOK
       price: 20
       particle: ENCHANT
-      count: 12
+      count: 16
       lore:
       - '&7Energía arcana alrededor de ti.'
+      radius: 0.58
     hearts:
       slot: 12
       name: '&#FF6FA2&lAura de corazones'
       material: PINK_DYE
       price: 20
       particle: HEART
-      count: 2
+      count: 16
       lore:
       - '&7Pequeños corazones a tu alrededor.'
+      radius: 0.58
     stars:
       name: '&#F8F3BB&lAura estelar'
       material: NETHER_STAR
       price: 20
       particle: END_ROD
-      count: 5
+      count: 16
       lore:
       - '&7Partículas especiales que te acompañan.'
       slot: 13
+      radius: 0.58
     nature:
       name: '&#72E996&lAura natural'
       material: OAK_SAPLING
       price: 20
       particle: HAPPY_VILLAGER
-      count: 8
+      count: 16
       lore:
       - '&7Partículas especiales que te acompañan.'
       slot: 14
+      radius: 0.58
     souls:
       name: '&#58DAFF&lAura de almas'
       material: SOUL_TORCH
       price: 20
       particle: SOUL_FIRE_FLAME
-      count: 5
+      count: 16
       lore:
       - '&7Partículas especiales que te acompañan.'
       slot: 15
+      radius: 0.58
+      spiral: true
     portal:
       name: '&#A87DFA&lAura del vacío'
       material: ENDER_EYE
       price: 20
       particle: PORTAL
-      count: 12
+      count: 16
       lore:
       - '&7Partículas especiales que te acompañan.'
       slot: 16
+      radius: 0.58
     clouds:
       name: '&#E6E6E6&lAura de nubes'
       material: WHITE_DYE
       price: 20
       particle: CLOUD
-      count: 7
+      count: 16
       lore:
       - '&7Partículas especiales que te acompañan.'
       slot: 19
+      radius: 0.58
     witch:
       name: '&#CC81FB&lAura de hechizos'
       material: BREWING_STAND
       price: 20
       particle: WITCH
-      count: 6
+      count: 16
       lore:
       - '&7Partículas especiales que te acompañan.'
       slot: 20
+      radius: 0.58
     totem:
       name: '&#FFD35C&lAura legendaria'
       material: TOTEM_OF_UNDYING
       price: 20
       particle: TOTEM_OF_UNDYING
-      count: 6
+      count: 16
       lore:
       - '&7Partículas especiales que te acompañan.'
       slot: 21
+      radius: 0.58
   balloons:
     red:
       slot: 10
@@ -175,8 +189,8 @@ cosmetics:
       price: 20
       lore:
       - '&7Una cabeza flotante con correa.'
-      head-owner: MHF_MushroomCow
-      head-texture: ''
+      head-owner: ''
+      head-texture: 52dd11da04252f76b6934bc26612f54f264f30eed74df89941209e191bebc0a2
     blue:
       slot: 11
       name: '&#6ACBFF&lGlobo azul'
@@ -184,8 +198,8 @@ cosmetics:
       price: 20
       lore:
       - '&7Una cabeza flotante con correa.'
-      head-owner: MHF_Squid
-      head-texture: ''
+      head-owner: ''
+      head-texture: f868e6a5c4a445d60a3050b5bec1d37af1b25943745d2d479800c8436488065a
     gold:
       slot: 12
       name: '&#FFD75D&lGlobo dorado'
@@ -193,14 +207,14 @@ cosmetics:
       price: 20
       lore:
       - '&7Una cabeza flotante con correa.'
-      head-owner: MHF_Blaze
-      head-texture: ''
+      head-owner: ''
+      head-texture: a7f381a20a9c640428077070cc7bd95d688592d1104ccbcd713649a49e41ebfb
     green:
       name: '&#75F275&lGlobo slime'
       material: LIME_WOOL
       price: 20
-      head-owner: MHF_Slime
-      head-texture: ''
+      head-owner: ''
+      head-texture: a26ec7cd3b6ae249997137c1b94867c66e97499da071bf50adfd37034132fa03
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 13
@@ -208,8 +222,8 @@ cosmetics:
       name: '&#FFA0CA&lGlobo cerdito'
       material: PINK_WOOL
       price: 20
-      head-owner: MHF_Pig
-      head-texture: ''
+      head-owner: ''
+      head-texture: afa4175b73cd84c45c5aa7ec0adbe7481342c01ae75077137b504be3188dc5ab
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 14
@@ -217,8 +231,8 @@ cosmetics:
       name: '&#FFAF51&lGlobo blaze'
       material: ORANGE_WOOL
       price: 20
-      head-owner: MHF_Blaze
-      head-texture: ''
+      head-owner: ''
+      head-texture: 61485349006ed1c91b7959aff44f330ddac35e3d9a99ea82051f986ecda4755
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 15
@@ -226,8 +240,8 @@ cosmetics:
       name: '&#AD80FF&lGlobo enderman'
       material: PURPLE_WOOL
       price: 20
-      head-owner: MHF_Enderman
-      head-texture: ''
+      head-owner: ''
+      head-texture: 76387fc246893d92a6dd9ea1b52dcd581e991eee2e263b27fff1bcf1b154eb7
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 16
@@ -235,8 +249,8 @@ cosmetics:
       name: '&#E7E7E7&lGlobo fantasma'
       material: WHITE_WOOL
       price: 20
-      head-owner: MHF_Ghast
-      head-texture: ''
+      head-owner: ''
+      head-texture: 7782da224351f635fd8631f65c6c0cf847c64afb931f5c7c1d95bc28665d753
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 19
@@ -244,8 +258,8 @@ cosmetics:
       name: '&#848484&lGlobo wither'
       material: BLACK_WOOL
       price: 20
-      head-owner: MHF_WitherSkeleton
-      head-texture: ''
+      head-owner: ''
+      head-texture: d25183de31715a8eb5768cbf2a525432d1fb10e367de5d5eb9bb7cb1bf15e582
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 20
@@ -253,8 +267,8 @@ cosmetics:
       name: '&#49D6F0&lGlobo océano'
       material: CYAN_WOOL
       price: 20
-      head-owner: MHF_Squid
-      head-texture: ''
+      head-owner: ''
+      head-texture: 2beed343c83eb6907cb008e6576f282e833de5579cfec6ccbe9b2edf10a2ecf5
       lore:
       - '&7Una cabeza flotante con correa.'
       slot: 21
@@ -292,37 +306,38 @@ cosmetics:
       - '&7Un aspecto especial para tu cabeza.'
       slot: 13
     chain:
-      name: '&#B3B5C4&lSombrero de cadenas'
-      material: CHAINMAIL_HELMET
+      name: '&#B8E8FF&lCabeza de zombie'
+      material: ZOMBIE_HEAD
       price: 20
-      helmet: CHAINMAIL_HELMET
+      helmet: ZOMBIE_HEAD
       lore:
-      - '&7Un aspecto especial para tu cabeza.'
+      - '&7Cabeza cosmética equipable.'
       slot: 14
     iron:
-      name: '&#CDDEE5&lSombrero de hierro'
-      material: IRON_HELMET
+      name: '&#B8E8FF&lCabeza de creeper'
+      material: CREEPER_HEAD
       price: 20
-      helmet: IRON_HELMET
+      helmet: CREEPER_HEAD
       lore:
-      - '&7Un aspecto especial para tu cabeza.'
+      - '&7Cabeza cosmética equipable.'
       slot: 15
     diamond:
-      name: '&#65E1EF&lSombrero de diamante'
-      material: DIAMOND_HELMET
+      name: '&#B8E8FF&lCabeza de piglin'
+      material: PIGLIN_HEAD
       price: 20
-      helmet: DIAMOND_HELMET
+      helmet: PIGLIN_HEAD
       lore:
-      - '&7Un aspecto especial para tu cabeza.'
+      - '&7Cabeza cosmética equipable.'
       slot: 16
     netherite:
-      name: '&#B9A8CE&lSombrero de netherite'
-      material: NETHERITE_HELMET
+      name: '&#B8E8FF&lCabeza personalizada azul'
+      material: PLAYER_HEAD
       price: 20
-      helmet: NETHERITE_HELMET
+      helmet: PLAYER_HEAD
       lore:
-      - '&7Un aspecto especial para tu cabeza.'
+      - '&7Cabeza cosmética equipable.'
       slot: 19
+      head-texture: f868e6a5c4a445d60a3050b5bec1d37af1b25943745d2d479800c8436488065a
     skeleton:
       name: '&#EBEBEB&lCabeza esqueleto'
       material: SKELETON_SKULL
@@ -358,5 +373,6 @@ messages:
   invalid-number: '&cIntroduce una cantidad entera entre 0 y 1,000,000,000.'
   no-scoreboard: '&cNo existe el objetivo del scoreboard configurado para las gemas.'
   reloaded: '&aConfiguración recargada.'
-  usage: '&e/gemas &7| &e/gemas add <jugador> <cantidad> &7| &e/gemas remove <jugador> <cantidad> &7| &e/gemas set <jugador> <cantidad>'
+  usage: '&e/gemas &7| &e/gemas add <jugador> <cantidad> &7| &e/gemas remove <jugador> <cantidad> &7| &e/gemas set <jugador>
+    <cantidad>'
   help: '&e/cosmeticos &7| &e/cosmeticos reload'

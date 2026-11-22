@@ -10,6 +10,7 @@ import org.bukkit.entity.Chicken;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.profile.PlayerProfile;
@@ -41,6 +42,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
     private File usersFile;
     private FileConfiguration users;
     private long ticks = 0;
+    private NamespacedKey cosmeticHatKey;
     private static final String[] CATEGORIES = {"auras", "balloons", "hats"};
     private static final Pattern RGB = Pattern.compile("&#([0-9a-fA-F]{6})");
     private static final class View {
@@ -51,6 +53,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
 
     @Override public void onEnable() {
         saveDefaultConfig();
+        cosmeticHatKey = new NamespacedKey(this, "cosmetic_hat");
         usersFile = new File(getDataFolder(), "players.yml");
         users = YamlConfiguration.loadConfiguration(usersFile);
         Objects.requireNonNull(getCommand("cosmeticos")).setExecutor(this);
@@ -195,8 +198,14 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
             else if (balance(player)>=price) state="purchasable";
             else state="insufficient";
             for (String line:lore("menus.categories.lore."+state)) lines.add(line.replace("%price%",Integer.toString(price)));
-            inv.setItem(safeSlot(getConfig().getInt(p+"slot", 10),size),item(material(p+"material",Material.BARRIER),
-                    getConfig().getString(p+"name",id),lines));
+            ItemStack icon = item(material(p+"material",Material.BARRIER), getConfig().getString(p+"name",id),lines);
+            if (cat.equals("hats") && icon.getType()==Material.PLAYER_HEAD) icon = applyHeadTexture(icon, p, player);
+            if (cat.equals("balloons") && getConfig().getBoolean("settings.show-balloon-heads-in-menu",true)) {
+                icon = balloonHead(id,player);
+                ItemMeta iconMeta=icon.getItemMeta();
+                if (iconMeta != null) {iconMeta.setDisplayName(c(getConfig().getString(p+"name",id)));iconMeta.setLore(lines.stream().map(this::c).toList());icon.setItemMeta(iconMeta);}
+            }
+            inv.setItem(safeSlot(getConfig().getInt(p+"slot",10),size),icon);
         }
         int back = safeSlot(getConfig().getInt("menus.categories.back-slot",31),size);
         inv.setItem(back,item(material("menus.categories.back-material",Material.ARROW),"&e← Volver",List.of("&7Regresa a las categorías")));
@@ -276,16 +285,30 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         ItemStack helmet=p.getInventory().getHelmet();
         return helmet==null || helmet.getType().isAir();
     }
+    private ItemStack hatItem(String id, Player player) {
+        String base="cosmetics.hats."+id+".";
+        Material mat=Material.matchMaterial(getConfig().getString(base+"helmet","GOLDEN_HELMET"));
+        if(mat==null || !mat.isItem())mat=Material.GOLDEN_HELMET;
+        ItemStack stack=new ItemStack(mat);
+        if (mat==Material.PLAYER_HEAD) stack=applyHeadTexture(stack,base,player);
+        ItemMeta meta=stack.getItemMeta();
+        if(meta!=null) {
+            meta.setDisplayName(c(getConfig().getString(base+"name",id)));
+            meta.getPersistentDataContainer().set(cosmeticHatKey,PersistentDataType.STRING,id);
+            stack.setItemMeta(meta);
+        }
+        return stack;
+    }
+    private boolean isCosmeticHat(ItemStack helmet) {
+        if (helmet==null || helmet.getType().isAir() || !helmet.hasItemMeta()) return false;
+        return helmet.getItemMeta().getPersistentDataContainer().has(cosmeticHatKey,PersistentDataType.STRING);
+    }
     private void equip(Player p,String cat,String id) {
         if (cat.equals("balloons"))removeBalloon(p.getUniqueId());
         if (cat.equals("hats")) {
             if (!equipped(p,"hats").isBlank())restoreHat(p,false);
-            // Hat is cosmetic; never overwrite a player's existing helmet.
             if (!canEquipHat(p))return;
-            String helmet=getConfig().getString("cosmetics.hats."+id+".helmet","GOLDEN_HELMET");
-            Material mat=Material.matchMaterial(helmet);
-            if (mat==null || !mat.isItem())mat=Material.GOLDEN_HELMET;
-            p.getInventory().setHelmet(new ItemStack(mat));
+            p.getInventory().setHelmet(hatItem(id,p));
         }
         setEquipped(p,cat,id);
         if (cat.equals("balloons"))spawnBalloon(p);
@@ -298,14 +321,10 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         if (notify)tell(p,"unequipped","%category%",categoryName(cat));
     }
     private void restoreHat(Player p,boolean clearRecord) {
-        String id=equipped(p,"hats");
-        if (id.isBlank())return;
-        String value=getConfig().getString("cosmetics.hats."+id+".helmet","GOLDEN_HELMET");
-        Material mat=Material.matchMaterial(value);
-        ItemStack current=p.getInventory().getHelmet();
-        // Do not delete a helmet that isn't the cosmetic we equipped.
-        if (mat!=null && current!=null && current.getType()==mat) p.getInventory().setHelmet(null);
-        if (clearRecord) setEquipped(p,"hats","");
+        if (equipped(p,"hats").isBlank())return;
+        ItemStack helmet=p.getInventory().getHelmet();
+        if (isCosmeticHat(helmet))p.getInventory().setHelmet(null);
+        if (clearRecord)setEquipped(p,"hats","");
     }
     private void removeBalloon(UUID uuid) {
         Balloon balloon=balloons.remove(uuid);
@@ -315,31 +334,33 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         try {if (balloon.head.isValid())balloon.head.remove();}catch(Exception ignored){}
         try {if (balloon.leashAnchor.isValid())balloon.leashAnchor.remove();}catch(Exception ignored){}
     }
-    private ItemStack balloonHead(String id, Player player) {
-        String base="cosmetics.balloons."+id+".";
-        ItemStack skull=new ItemStack(Material.PLAYER_HEAD);
+    private ItemStack applyHeadTexture(ItemStack skull, String base, Player player) {
+        if (skull.getType()!=Material.PLAYER_HEAD) return skull;
         SkullMeta meta=(SkullMeta)skull.getItemMeta();
         String texture=getConfig().getString(base+"head-texture","").trim();
-        String owner=getConfig().getString(base+"head-owner","MHF_Slime").trim();
+        String owner=getConfig().getString(base+"head-owner","").trim();
         if (!texture.isEmpty()) {
-            // Optional direct Mojang texture hash: useful to customize the balloon without recompiling.
             try {
-                if (!texture.matches("[0-9a-fA-F]{32,128}"))throw new IllegalArgumentException("invalid texture hash");
+                // Only texture hashes hosted by Mojang; no arbitrary remote requests.
+                if (!texture.matches("[0-9a-fA-F]{32,128}"))throw new IllegalArgumentException("hash inválido");
                 PlayerProfile profile=Bukkit.createPlayerProfile(UUID.randomUUID());
                 PlayerTextures textures=profile.getTextures();
                 textures.setSkin(new URL("https://textures.minecraft.net/texture/"+texture));
                 profile.setTextures(textures);
                 meta.setOwnerProfile(profile);
             } catch (Exception ex) {
-                getLogger().warning("Textura de globo incorrecta para "+id+": "+ex.getMessage());
+                getLogger().warning("Textura incorrecta en "+base+": "+ex.getMessage());
             }
         } else if (owner.equalsIgnoreCase("%player%")) {
             meta.setOwningPlayer(player);
-        } else {
+        } else if (!owner.isEmpty()) {
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
         }
         skull.setItemMeta(meta);
         return skull;
+    }
+    private ItemStack balloonHead(String id, Player player) {
+        return applyHeadTexture(new ItemStack(Material.PLAYER_HEAD), "cosmetics.balloons."+id+".", player);
     }
     private void spawnBalloon(Player player) {
         removeBalloon(player.getUniqueId());
@@ -386,7 +407,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
     }
     private void tickCosmetics() {
         ticks+=3;
-        int auraPeriod=Math.max(3,getConfig().getInt("settings.aura-period-ticks",8));
+        int auraPeriod=Math.max(3,getConfig().getInt("settings.aura-period-ticks",6));
         int balloonPeriod=Math.max(3,getConfig().getInt("settings.balloon-period-ticks",3));
         for(Player p:Bukkit.getOnlinePlayers()) {
             if(!allowed(p) || p.isDead()) {
@@ -395,13 +416,28 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
             }
             String aura=equipped(p,"auras");
             if(!aura.isEmpty() && ticks%auraPeriod<3) {
-                String path="cosmetics.auras."+aura+".";
+                String cp="cosmetics.auras."+aura+".";
                 Particle particle;
-                try {particle=Particle.valueOf(getConfig().getString(path+"particle","FLAME"));}
+                try {particle=Particle.valueOf(getConfig().getString(cp+"particle","FLAME"));}
                 catch(IllegalArgumentException ex){particle=Particle.FLAME;}
-                int n=Math.min(25,Math.max(1,getConfig().getInt(path+"count",5)));
-                try {p.getWorld().spawnParticle(particle,p.getLocation().add(0,1,0),n,.48,.6,.48,.01);}
-                catch(Exception ignored){}
+                int count=Math.min(80,Math.max(1,getConfig().getInt(cp+"count",12)));
+                double radius=Math.max(.1,Math.min(2.0,getConfig().getDouble(cp+"radius",.58)));
+                try {
+                    if (aura.equals("fire") || getConfig().getBoolean(cp+"spiral",false)) {
+                        // A moving helix makes the aura visible around the whole player, not one small puff.
+                        Location base=p.getLocation();
+                        for(int i=0;i<count;i++) {
+                            double angle=(i*2.399963229728653)+(ticks*.10);
+                            double y=.15+(i%12)*.132;
+                            p.getWorld().spawnParticle(particle,base.getX()+Math.cos(angle)*radius,base.getY()+y,base.getZ()+Math.sin(angle)*radius,1,0,0,0,0);
+                        }
+                        if (aura.equals("fire")) {
+                            p.getWorld().spawnParticle(Particle.SMALL_FLAME,base.clone().add(0,.85,0),Math.max(3,count/3),radius,.6,radius,.005);
+                        }
+                    } else {
+                        p.getWorld().spawnParticle(particle,p.getLocation().add(0,1,0),count,radius,.75,radius,.015);
+                    }
+                } catch(Exception ignored) {}
             }
             if(!equipped(p,"balloons").isEmpty()) {
                 Balloon balloon=balloons.get(p.getUniqueId());
@@ -420,10 +456,7 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         if(!equipped(p,"balloons").isEmpty())spawnBalloon(p);
         // Hats are removed on quit/disable. Reequip safely if there is no physical helmet.
         String hat=equipped(p,"hats");
-        if(!hat.isEmpty() && canReapplyHat(p)) {
-            Material mat=Material.matchMaterial(getConfig().getString("cosmetics.hats."+hat+".helmet","GOLDEN_HELMET"));
-            if(mat!=null)p.getInventory().setHelmet(new ItemStack(mat));
-        }
+        if(!hat.isEmpty() && canReapplyHat(p)) p.getInventory().setHelmet(hatItem(hat,p));
     }
     private boolean canReapplyHat(Player p) {ItemStack helmet=p.getInventory().getHelmet();return helmet==null || helmet.getType().isAir();}
     @EventHandler public void join(PlayerJoinEvent e) {Bukkit.getScheduler().runTaskLater(this,()->resumeVisuals(e.getPlayer()),20);}
@@ -437,9 +470,8 @@ public final class BastionMCCosmetics extends JavaPlugin implements Listener, Co
         Player p=e.getEntity();
         String hat=equipped(p,"hats");
         if(!hat.isBlank()) {
-            Material m=Material.matchMaterial(getConfig().getString("cosmetics.hats."+hat+".helmet","GOLDEN_HELMET"));
             ItemStack helmet=p.getInventory().getHelmet();
-            if(m!=null && helmet!=null && helmet.getType()==m) {
+            if(isCosmeticHat(helmet)) {
                 // Avoid duplicating cosmetic helmets in drops.
                 e.getDrops().removeIf(drop -> drop.isSimilar(helmet));
                 p.getInventory().setHelmet(null);
